@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <h1>Products</h1>
+    <div id="display"></div>
+    <hr>
+    <h1>My cart</h1>
+    <div id="myCart"></div>
+    <script>
+        const MY_SERVER = "http://127.0.0.1:8000/"
+        const cart = []
+        const load_display = async () => {
+            const res = await axios.get(MY_SERVER + "products/")
+            products = res.data
+            display.innerHTML = res.data.map((product, index) =>
+            `<div class="card" style="width: 10rem;">
+                <img src="${product.img}" class="card-img-top" alt="...">
+                <div class="card">
+                    <h5 class="card-title">${product.description}</h5>
+                    <p class="card-text">price: ${product.price}</p>
+                    <button class="btn btn-primary" onClick="buy(${index})">Add to cart</a>
+                </div>
+            </div>
+        `)
+    }
+        const buy = (index) => {
+            product = products[index];
+            if (cart.filter(item => item.id === product.id).length > 0) {
+                currentProduct = cart.filter(item => item.id === product.id)[0]
+                console.log(currentProduct);
+                currentProduct.quantity = parseInt(currentProduct.quantity) + 1
+            } else {
+                cart.push({ id: product.id, item: product.description, price: product.price, image: product.img, category: product.category, quantity: 1 })
+            }
+            console.table(cart);
+            localStorage.setItem('cart', JSON.stringify(cart))
+        }
+        load_display()
+        myCart.innerHTML = `<div class="row row-cols-1 row-cols-md-5 g-2">` +  cart.map((prod,ind) => `
+            <div class="col">
+            <div class="card">
+            <img src=${prod.img} class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">${prod.price}</h5>
+              <p class="card-text">${prod.description}, amount ${prod.quantity}</p>
+            </div>
+            </div>
+            </div>
+          `) 
+          myCart.innerHTML += "</div>"
+
+        const loadData=()=>{
+            temp =  localStorage.getItem('cart')
+            if (temp === null){
+                console.log("storage empty");
+            }else{
+                cart = JSON.parse(localStorage.getItem('cart'))
+            }
+          }
+    </script>
+</body>
+
+</html>
