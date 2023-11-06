@@ -2,8 +2,27 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Product,Category
 from django.contrib.auth.models import User
+
+# login
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom columns (user return payload - when login )
+        token['username'] = user.username
+        token['emaillll'] = user.email
+        token['blabla'] = "waga baga bbb"
+        # ...
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -13,19 +32,19 @@ class ProductSerializer(serializers.ModelSerializer):
 
 # Create your views here.
 @api_view(['GET'])
-def prodoct(req):
+def product(req):
     return Response (ProductSerializer(Product.objects.all(), many=True).data)
 
-@api_view(['GET'])
-#@permission_classes([IsAuthenticated])
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def members(req):
-    return Response ({"access":"success"})
+    return Response ({"secert":"bla"})
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def register(req):
-    User.objects.creat_user()
-    return Response ({"access":"success"})
+    User.objects.creat_user(username=req.data["username"],password=req.data["password"])
+    return Response ({"user":"created"})
 
 from rest_framework.views import APIView
 from rest_framework import status
